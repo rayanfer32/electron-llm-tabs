@@ -36,7 +36,22 @@
             <button class="tab-close" onclick="closeTab(4)">×</button>
           </div>
         </div>
-        <button class="new-tab-btn" onclick="addNewTab()">+</button>
+        <div class="tab-controls">
+          <button
+            class="toggle-close-btn"
+            onclick="toggleCloseBtns()"
+            title="Toggle close buttons"
+          >
+            👁️
+          </button>
+          <button
+            class="new-tab-btn"
+            onclick="openNewTabDialog()"
+            title="Add new tab"
+          >
+            +
+          </button>
+        </div>
       </div>
 
       <div class="content-area">
@@ -109,6 +124,43 @@
             <p>Loading Copilot...</p>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Custom Tab Dialog -->
+    <div id="customTabDialog" class="dialog-overlay">
+      <div class="dialog">
+        <h3>Add Custom Tab</h3>
+        <form id="customTabForm">
+          <div class="form-group">
+            <label for="tabName">Tab Name:</label>
+            <input
+              type="text"
+              id="tabName"
+              placeholder="Enter tab name"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="tabUrl">URL:</label>
+            <input
+              type="url"
+              id="tabUrl"
+              placeholder="https://example.com"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="tabIcon">Icon (emoji):</label>
+            <input type="text" id="tabIcon" placeholder="🌐" maxlength="2" />
+          </div>
+          <div class="form-buttons">
+            <button type="button" onclick="closeCustomTabDialog()">
+              Cancel
+            </button>
+            <button type="submit">Add Tab</button>
+          </div>
+        </form>
       </div>
     </div>
 

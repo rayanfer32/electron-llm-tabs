@@ -1,5 +1,8 @@
 // renderer.js
 let currentTab = 0;
+let nextCustomTabId = 1000; // Start custom tabs at 1000 to avoid conflicts
+let closeButtonsVisible = true;
+
 const llmConfigs = [
   { name: "Claude", url: "https://claude.ai", icon: "🤖" },
   { name: "ChatGPT", url: "https://chatgpt.com", icon: "💬" },
@@ -8,15 +11,56 @@ const llmConfigs = [
   { name: "Copilot", url: "https://copilot.microsoft.com", icon: "🔷" },
 ];
 
+const customTabs = new Map(); // Store custom tab configurations
+
 document.addEventListener("DOMContentLoaded", () => {
   initializeTabs();
   setupEventListeners();
+  setupCustomTabForm();
 
   // Add a delay to ensure webviews are properly initialized
   setTimeout(() => {
     reinitializeWebviews();
   }, 1000);
 });
+
+function setupCustomTabForm() {
+  const form = document.getElementById("customTabForm");
+  const dialog = document.getElementById("customTabDialog");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("tabName").value.trim();
+    const url = document.getElementById("tabUrl").value.trim();
+    const icon = document.getElementById("tabIcon").value.trim() || "🌐";
+
+    if (name && url) {
+      // Create custom tab configuration
+      const customConfig = { name, url, icon };
+      const customId = nextCustomTabId++;
+
+      customTabs.set(customId, customConfig);
+      createTab(customId, customConfig);
+
+      closeCustomTabDialog();
+    }
+  });
+
+  // Close dialog when clicking outside
+  dialog.addEventListener("click", (e) => {
+    if (e.target === dialog) {
+      closeCustomTabDialog();
+    }
+  });
+
+  // Close dialog with Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && dialog.classList.contains("active")) {
+      closeCustomTabDialog();
+    }
+  });
+}
 
 // Add CSS for context menu and error states
 const contextMenuStyles = `
@@ -192,22 +236,32 @@ function addNewTab() {
     (_, index) => !document.querySelector(`[data-tab="${index}"]`)
   );
 
-  if (availableLLMs.length === 0) return; // All tabs are already open
+  if (availableLLMs.length === 0) {
+    // No more default LLMs available, open custom tab dialog
+    openNewTabDialog();
+    return;
+  }
 
   const newLLM = availableLLMs[0];
   const newIndex = llmConfigs.indexOf(newLLM);
 
+  createTab(newIndex, newLLM);
+}
+
+function createTab(index, config) {
   // Create new tab
   const tabList = document.querySelector(".tab-list");
   const newTab = document.createElement("div");
   newTab.className = "tab";
-  newTab.dataset.tab = newIndex;
+  newTab.dataset.tab = index;
   newTab.innerHTML = `
-        <span class="tab-icon">${newLLM.icon}</span>
-        <span class="tab-title">${newLLM.name}</span>
-        <button class="tab-close" onclick="closeTab(${newIndex})">×</button>
+        <span class="tab-icon">${config.icon}</span>
+        <span class="tab-title">${config.name}</span>
+        <button class="tab-close ${
+          closeButtonsVisible ? "" : "hidden"
+        }" onclick="closeTab(${index})">×</button>
     `;
-  newTab.addEventListener("click", () => switchToTab(newIndex));
+  newTab.addEventListener("click", () => switchToTab(index));
 
   tabList.appendChild(newTab);
 
@@ -215,17 +269,19 @@ function addNewTab() {
   const contentArea = document.querySelector(".content-area");
   const newContainer = document.createElement("div");
   newContainer.className = "webview-container";
-  newContainer.dataset.content = newIndex;
+  newContainer.dataset.content = index;
   newContainer.innerHTML = `
         <webview 
-            src="${newLLM.url}" 
-            partition="persist:${newLLM.name.toLowerCase()}"
+            src="${config.url}" 
+            partition="persist:${config.name
+              .toLowerCase()
+              .replace(/\s+/g, "_")}"
             allowpopups
-            webpreferences="contextIsolation=yes">
+            useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36">
         </webview>
         <div class="loading-overlay">
             <div class="spinner"></div>
-            <p>Loading ${newLLM.name}...</p>
+            <p>Loading ${config.name}...</p>
         </div>
     `;
 
@@ -233,20 +289,91 @@ function addNewTab() {
 
   // Initialize the new webview
   const newWebview = newContainer.querySelector("webview");
-  newWebview.addEventListener("dom-ready", () => {
-    hideLoadingOverlay(newIndex);
-  });
-
-  newWebview.addEventListener("did-start-loading", () => {
-    showLoadingOverlay(newIndex);
-  });
-
-  newWebview.addEventListener("did-stop-loading", () => {
-    hideLoadingOverlay(newIndex);
-  });
+  setupWebviewEvents(newWebview, index);
 
   // Switch to the new tab
-  switchToTab(newIndex);
+  switchToTab(index);
+}
+
+function setupWebviewEvents(webview, index) {
+  webview.addEventListener("dom-ready", () => {
+    console.log(`Webview ${index} DOM ready`);
+    hideLoadingOverlay(index);
+  });
+
+  webview.addEventListener("did-start-loading", () => {
+    console.log(`Webview ${index} started loading`);
+    showLoadingOverlay(index);
+  });
+
+  webview.addEventListener("did-stop-loading", () => {
+    console.log(`Webview ${index} stopped loading`);
+    hideLoadingOverlay(index);
+  });
+
+  webview.addEventListener("did-fail-load", (e) => {
+    console.error(`Webview ${index} failed to load:`, e);
+    hideLoadingOverlay(index);
+    showErrorMessage(index, "Failed to load. Click to retry.");
+  });
+
+  webview.addEventListener("did-finish-load", () => {
+    console.log(`Webview ${index} finished loading`);
+    hideLoadingOverlay(index);
+  });
+
+  webview.addEventListener("new-window", (e) => {
+    e.preventDefault();
+    const { shell } = require("electron");
+    shell.openExternal(e.url);
+  });
+
+  webview.addEventListener("click", () => {
+    if (webview.src) {
+      webview.reload();
+    }
+  });
+}
+
+function openNewTabDialog() {
+  const dialog = document.getElementById("customTabDialog");
+  dialog.classList.add("active");
+
+  // Clear form
+  document.getElementById("tabName").value = "";
+  document.getElementById("tabUrl").value = "";
+  document.getElementById("tabIcon").value = "🌐";
+
+  // Focus on name field
+  document.getElementById("tabName").focus();
+}
+
+function closeCustomTabDialog() {
+  const dialog = document.getElementById("customTabDialog");
+  dialog.classList.remove("active");
+}
+
+function toggleCloseBtns() {
+  closeButtonsVisible = !closeButtonsVisible;
+  const closeButtons = document.querySelectorAll(".tab-close");
+  const toggleBtn = document.querySelector(".toggle-close-btn");
+
+  closeButtons.forEach((btn) => {
+    if (closeButtonsVisible) {
+      btn.classList.remove("hidden");
+    } else {
+      btn.classList.add("hidden");
+    }
+  });
+
+  // Update toggle button appearance
+  if (closeButtonsVisible) {
+    toggleBtn.classList.remove("active");
+    toggleBtn.title = "Hide close buttons";
+  } else {
+    toggleBtn.classList.add("active");
+    toggleBtn.title = "Show close buttons";
+  }
 }
 
 function closeCurrentTab() {

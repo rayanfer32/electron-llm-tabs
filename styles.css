@@ -34,6 +34,37 @@ body {
   gap: 2px;
 }
 
+.tab-controls {
+  display: flex;
+  gap: 5px;
+  margin-left: 10px;
+}
+
+.toggle-close-btn {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 14px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.toggle-close-btn:hover {
+  background-color: #4d4d4d;
+  color: white;
+}
+
+.toggle-close-btn.active {
+  background-color: #007acc;
+  color: white;
+}
+
 .tab {
   display: flex;
   align-items: center;
@@ -92,6 +123,10 @@ body {
   color: white;
 }
 
+.tab-close.hidden {
+  display: none;
+}
+
 .new-tab-btn {
   background: none;
   border: none;
@@ -106,12 +141,104 @@ body {
   justify-content: center;
   border-radius: 50%;
   transition: all 0.2s ease;
-  margin-left: 10px;
 }
 
 .new-tab-btn:hover {
   background-color: #4d4d4d;
   color: white;
+}
+
+/* Dialog Styles */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog-overlay.active {
+  display: flex;
+}
+
+.dialog {
+  background-color: #2d2d2d;
+  border-radius: 8px;
+  padding: 20px;
+  min-width: 400px;
+  max-width: 500px;
+  border: 1px solid #404040;
+}
+
+.dialog h3 {
+  margin-bottom: 20px;
+  color: #ffffff;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #cccccc;
+  font-size: 14px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007acc;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.form-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.form-buttons button[type="button"] {
+  background-color: #555;
+  color: #ffffff;
+}
+
+.form-buttons button[type="button"]:hover {
+  background-color: #666;
+}
+
+.form-buttons button[type="submit"] {
+  background-color: #007acc;
+  color: #ffffff;
+}
+
+.form-buttons button[type="submit"]:hover {
+  background-color: #005a9e;
 }
 
 .content-area {
