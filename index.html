@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>LLM Tabs App</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      nav {
+        display: flex;
+        background: #470d0d;
+      }
+      button {
+        flex: 1;
+        padding: 10px;
+        background: #444;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <button onclick="switchTab(0)">ChatGPT</button>
+      <button onclick="switchTab(1)">Gemini</button>
+      <button onclick="switchTab(2)">Claude</button>
+      <button onclick="switchTab(3)">Perplexity</button>
+      <button onclick="switchTab(4)">Mistral</button>
+    </nav>
+
+    <script>
+      function switchTab(index) {
+        window.electronAPI.switchTab(index);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "llm-tabs-app",
+  "version": "1.0.0",
+  "description": "Electron app with tabs for ChatGPT, Gemini, Claude, Perplexity, and Mistral",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^37.2.3"
+  }
+}
