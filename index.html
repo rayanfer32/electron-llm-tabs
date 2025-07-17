@@ -10,31 +10,7 @@
     <div class="app-container">
       <div class="tab-bar">
         <div class="tab-list">
-          <div class="tab active" data-tab="0">
-            <span class="tab-icon">🤖</span>
-            <span class="tab-title">Claude</span>
-            <button class="tab-close" onclick="closeTab(0)">×</button>
-          </div>
-          <div class="tab" data-tab="1">
-            <span class="tab-icon">💬</span>
-            <span class="tab-title">ChatGPT</span>
-            <button class="tab-close" onclick="closeTab(1)">×</button>
-          </div>
-          <div class="tab" data-tab="2">
-            <span class="tab-icon">✨</span>
-            <span class="tab-title">Gemini</span>
-            <button class="tab-close" onclick="closeTab(2)">×</button>
-          </div>
-          <div class="tab" data-tab="3">
-            <span class="tab-icon">🔍</span>
-            <span class="tab-title">Perplexity</span>
-            <button class="tab-close" onclick="closeTab(3)">×</button>
-          </div>
-          <div class="tab" data-tab="4">
-            <span class="tab-icon">🔷</span>
-            <span class="tab-title">Copilot</span>
-            <button class="tab-close" onclick="closeTab(4)">×</button>
-          </div>
+          <!-- Tabs will be dynamically generated here -->
         </div>
         <div class="tab-controls">
           <button
@@ -55,75 +31,7 @@
       </div>
 
       <div class="content-area">
-        <div class="webview-container active" data-content="0">
-          <webview
-            src="https://claude.ai"
-            partition="persist:claude"
-            allowpopups
-            useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-          >
-          </webview>
-          <div class="loading-overlay">
-            <div class="spinner"></div>
-            <p>Loading Claude...</p>
-          </div>
-        </div>
-
-        <div class="webview-container" data-content="1">
-          <webview
-            src="https://chatgpt.com"
-            partition="persist:chatgpt"
-            allowpopups
-            useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-          >
-          </webview>
-          <div class="loading-overlay">
-            <div class="spinner"></div>
-            <p>Loading ChatGPT...</p>
-          </div>
-        </div>
-
-        <div class="webview-container" data-content="2">
-          <webview
-            src="https://gemini.google.com"
-            partition="persist:gemini"
-            allowpopups
-            useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-          >
-          </webview>
-          <div class="loading-overlay">
-            <div class="spinner"></div>
-            <p>Loading Gemini...</p>
-          </div>
-        </div>
-
-        <div class="webview-container" data-content="3">
-          <webview
-            src="https://perplexity.ai"
-            partition="persist:perplexity"
-            allowpopups
-            useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-          >
-          </webview>
-          <div class="loading-overlay">
-            <div class="spinner"></div>
-            <p>Loading Perplexity...</p>
-          </div>
-        </div>
-
-        <div class="webview-container" data-content="4">
-          <webview
-            src="https://copilot.microsoft.com"
-            partition="persist:copilot"
-            allowpopups
-            useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-          >
-          </webview>
-          <div class="loading-overlay">
-            <div class="spinner"></div>
-            <p>Loading Copilot...</p>
-          </div>
-        </div>
+        <!-- Webview containers will be dynamically generated here -->
       </div>
     </div>
 

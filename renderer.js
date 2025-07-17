@@ -9,12 +9,17 @@ const llmConfigs = [
   { name: "Gemini", url: "https://gemini.google.com", icon: "✨" },
   { name: "Perplexity", url: "https://perplexity.ai", icon: "🔍" },
   { name: "Copilot", url: "https://copilot.microsoft.com", icon: "🔷" },
+  { name: "HuggingFace", url: "https://huggingface.com/chat", icon: "🤗" },
 ];
 
 const customTabs = new Map(); // Store custom tab configurations
 
 document.addEventListener("DOMContentLoaded", () => {
-  initializeTabs();
+  // Dynamically create tabs from llmConfigs
+  llmConfigs.forEach((config, index) => {
+    createTab(index, config);
+  });
+  
   setupEventListeners();
   setupCustomTabForm();
 
