@@ -1,62 +1,168 @@
-const { app, BrowserWindow, BrowserView, ipcMain } = require('electron');
-const path = require('path');
-
-const LLM_TABS = [
-  { name: 'ChatGPT', url: 'https://chat.openai.com' },
-  { name: 'Gemini', url: 'https://gemini.google.com' },
-  { name: 'Claude', url: 'https://claude.ai' },
-  { name: 'Perplexity', url: 'https://www.perplexity.ai' },
-  { name: 'Mistral', url: 'https://chat.mistral.ai' },
-];
+// main.js
+const { app, BrowserWindow, Menu } = require("electron");
+const path = require("path");
 
 let mainWindow;
-let views = [];
-let currentViewIndex = 0;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1280,
+    width: 1400,
     height: 900,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
       contextIsolation: true,
-    }
+      enableRemoteModule: false,
+      webSecurity: false,
+      webviewTag: true,
+      allowRunningInsecureContent: true,
+    },
+    icon: path.join(__dirname, "assets/icon.png"),
+    titleBarStyle: "default",
+    show: false,
   });
 
-  // Create a BrowserView for each LLM tab
-  for (const tab of LLM_TABS) {
-    const view = new BrowserView();
-    view.webContents.loadURL(tab.url);
-    views.push(view);
-  }
+  mainWindow.loadFile("index.html");
 
-  // Show first view by default
-  switchToView(0);
-
-  // Load UI with tab buttons
-  mainWindow.loadFile('index.html');
-
-  // Listen for tab switch events from renderer
-  ipcMain.on('switch-tab', (event, index) => {
-    switchToView(index);
+  // Show window when ready to prevent visual flash
+  mainWindow.once("ready-to-show", () => {
+    mainWindow.show();
   });
-}
 
-function switchToView(index) {
-  if (views[index]) {
-    if (mainWindow.getBrowserView()) {
-      mainWindow.removeBrowserView(mainWindow.getBrowserView());
-    }
-    const view = views[index];
-    mainWindow.setBrowserView(view);
-    view.setBounds({ x: 0, y: 40, width: 1280, height: 860 });
-    view.setAutoResize({ width: true, height: true });
-    currentViewIndex = index;
-  }
+  // Create application menu
+  const template = [
+    {
+      label: "File",
+      submenu: [
+        {
+          label: "New Tab",
+          accelerator: "CmdOrCtrl+T",
+          click: () => {
+            mainWindow.webContents.executeJavaScript("addNewTab()");
+          },
+        },
+        {
+          label: "Close Tab",
+          accelerator: "CmdOrCtrl+W",
+          click: () => {
+            mainWindow.webContents.executeJavaScript("closeCurrentTab()");
+          },
+        },
+        { type: "separator" },
+        {
+          label: "Quit",
+          accelerator: process.platform === "darwin" ? "Cmd+Q" : "Ctrl+Q",
+          click: () => {
+            app.quit();
+          },
+        },
+      ],
+    },
+    {
+      label: "View",
+      submenu: [
+        {
+          label: "Reload",
+          accelerator: "CmdOrCtrl+R",
+          click: () => {
+            mainWindow.webContents.executeJavaScript("reloadCurrentTab()");
+          },
+        },
+        {
+          label: "Toggle Developer Tools",
+          accelerator:
+            process.platform === "darwin" ? "Alt+Cmd+I" : "Ctrl+Shift+I",
+          click: () => {
+            mainWindow.webContents.toggleDevTools();
+          },
+        },
+        { type: "separator" },
+        {
+          label: "Actual Size",
+          accelerator: "CmdOrCtrl+0",
+          click: () => {
+            mainWindow.webContents.setZoomLevel(0);
+          },
+        },
+        {
+          label: "Zoom In",
+          accelerator: "CmdOrCtrl+Plus",
+          click: () => {
+            mainWindow.webContents.setZoomLevel(
+              mainWindow.webContents.getZoomLevel() + 0.5
+            );
+          },
+        },
+        {
+          label: "Zoom Out",
+          accelerator: "CmdOrCtrl+-",
+          click: () => {
+            mainWindow.webContents.setZoomLevel(
+              mainWindow.webContents.getZoomLevel() - 0.5
+            );
+          },
+        },
+      ],
+    },
+    {
+      label: "LLMs",
+      submenu: [
+        {
+          label: "Claude",
+          accelerator: "CmdOrCtrl+1",
+          click: () => {
+            mainWindow.webContents.executeJavaScript("switchToTab(0)");
+          },
+        },
+        {
+          label: "ChatGPT",
+          accelerator: "CmdOrCtrl+2",
+          click: () => {
+            mainWindow.webContents.executeJavaScript("switchToTab(1)");
+          },
+        },
+        {
+          label: "Gemini",
+          accelerator: "CmdOrCtrl+3",
+          click: () => {
+            mainWindow.webContents.executeJavaScript("switchToTab(2)");
+          },
+        },
+        {
+          label: "Perplexity",
+          accelerator: "CmdOrCtrl+4",
+          click: () => {
+            mainWindow.webContents.executeJavaScript("switchToTab(3)");
+          },
+        },
+        {
+          label: "Microsoft Copilot",
+          accelerator: "CmdOrCtrl+5",
+          click: () => {
+            mainWindow.webContents.executeJavaScript("switchToTab(4)");
+          },
+        },
+      ],
+    },
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+  });
 }
 
 app.whenReady().then(createWindow);
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});
+
+app.on("activate", () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
 });
